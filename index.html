@@ -1,53 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
     <head>
-        <meta charset="UTF-8">
+        <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>10秒ぴったりストップ</title>
-        <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <main class="game-card">
-            <p class="eyebrow">TIME CHALLENGE</p>
-            <h1>10秒ぴったりストップ</h1>
-            <p class="description">
-                スタートを押して、10秒だと思った瞬間にストップ！
-            </p>
-
-            <section class="timer-area" aria-live="polite">
-                <p class="timer-label">経過時間</p>
-                <p id="timer" class="timer">0.00</p>
-                <p class="unit">秒</p>
-            </section>
-
-            <div class="buttons">
-                <button id="start-button" class="button button-start" type="button">
-                    スタート
-                </button>
-                <button
-                    id="stop-button"
-                    class="button button-stop"
-                    type="button"
-                    disabled
-                >
-                    ストップ
-                </button>
-                <button
-                    id="reset-button"
-                    class="button button-reset"
-                    type="button"
-                >
-                    リセット
-                </button>
-            </div>
-
-            <section class="result-area" aria-live="polite">
-                <p id="result" class="result" >スタートボタンを押してください</p>
-                <p class="best-record">
-                    ベスト記録：<span id="best-record">--</span>
-                </p>
-            </section>
-        </main>
-        <script src="script.js"></script>
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
     </body>
 </html>
