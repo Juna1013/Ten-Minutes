@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
+import { saveRecord } from "./api/records";
 
 // ゲームで使う値
 const TARGET_TIME = 10;
@@ -37,6 +38,7 @@ function App() {
     const [isRunning, setIsRunning] = useState(false);
     const [result, setResult] = useState("スタートボタンを押してください");
     const [bestRecord, setBestRecord] = useState<number | null>(null);
+    const [saveMessage, setSaveMessage] = useState("");
 
     // 表示に使わない値はrefで持つ（更新しても再描画しない）
     const startTimeRef = useRef(0);
@@ -71,6 +73,7 @@ function App() {
         setIsRunning(true);
         setElapsedSeconds(0);
         setResult("10秒だと思ったらストップ！");
+        setSaveMessage("");
 
         startTimeRef.current = performance.now();
         timerIdRef.current = window.setInterval(() => {
@@ -79,25 +82,38 @@ function App() {
     }
 
     // ストップボタンを押したときの処理
-    function stopGame(): void {
+    async function stopGame(): Promise<void> {
         if (!isRunning) {
             return;
         }
 
-        const stoppedSeconds = (performance.now() - startTimeRef.current) / 1000;
-        const difference = Math.abs(TARGET_TIME - stoppedSeconds);
+        const elapsedSeconds = (performance.now() - startTimeRef.current) / 1000;
+        const difference = Math.abs(TARGET_TIME - elapsedSeconds);
 
         clearTimer();
+        setElapsedSeconds(elapsedSeconds);
+        setResult(createResultMessage(elapsedSeconds, difference));
         setIsRunning(false);
-        setElapsedSeconds(stoppedSeconds);
-        setResult(createResultMessage(stoppedSeconds, difference));
 
-        // ベスト記録を必要に応じて更新する
+        // ベスト記録を必要に応じて更新する（API保存の成否とは無関係）
         const savedBest = getSavedBestRecord();
 
         if (savedBest === null || difference < savedBest) {
             localStorage.setItem(BEST_RECORD_KEY, String(difference));
             setBestRecord(difference);
+        }
+
+        setSaveMessage("保存中...");
+
+        try {
+            const savedRecord = await saveRecord(elapsedSeconds);
+
+            setSaveMessage(
+                `記録を保存しました（誤差 ${savedRecord.difference.toFixed(2)}秒）`
+            );
+        } catch (error) {
+            console.error(error);
+            setSaveMessage("記録を保存できませんでした");
         }
     }
 
@@ -107,6 +123,7 @@ function App() {
         setIsRunning(false);
         setElapsedSeconds(0);
         setResult("スタートボタンを押してください");
+        setSaveMessage("");
         startTimeRef.current = 0;
     }
 
@@ -152,6 +169,7 @@ function App() {
 
             <section className="result-area" aria-live="polite">
                 <p className="result">{result}</p>
+                <p className="save-message">{saveMessage}</p>
                 <p className="best-record">
                     ベスト記録：
                     <span>
