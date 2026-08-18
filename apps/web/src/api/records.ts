@@ -1,9 +1,7 @@
-export type SavedRecord = {
-    id: number;
-    elapsed_time: number;
-    difference: number;
-    created_at: string;
-};
+import {
+    savedRecordSchema,
+    type SavedRecord,
+} from "../schemas/record";
 
 const API_URL =
     import.meta.env.VITE_API_URL ?? "http://localhost:8000";
@@ -22,8 +20,24 @@ export async function saveRecord(
     });
 
     if (!response.ok) {
-        throw new Error(`記録の保存に失敗しました: ${response.status}`);
+        throw new Error(
+            `記録の保存に失敗しました: ${response.status}`,
+        );
     }
 
-    return response.json() as Promise<SavedRecord>;
+    const json: unknown = await response.json();
+    const result = savedRecordSchema.safeParse(json);
+
+    if (!result.success) {
+        console.error(
+            "APIレスポンスの検証に失敗しました",
+            result.error.issues,
+        );
+
+        throw new Error(
+            "APIから不正な形式のデータが返されました",
+        );
+    }
+
+    return result.data;
 }
