@@ -12,7 +12,9 @@
         "dev:api": "turbo run dev --filter=@ten-minutes/api",
         "db:up": "docker compose up -d db",
         "db:down": "docker compose down",
-        "db:logs": "docker compose logs -f db"
+        "db:logs": "docker compose logs -f db",
+        "test": "turbo run test",
+        "tet:web": "turbo run test --filter=@ten-minutes/web"
     },
     "packageManager": "bun@1.3.14",
     "devDependencies": {

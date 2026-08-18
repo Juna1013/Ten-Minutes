@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { saveRecord } from "./api/records";
+import {
+    calculateDifference,
+    createResultMessage,
+} from "./game";
 
 // ゲームで使う値
-const TARGET_TIME = 10;
 const BEST_RECORD_KEY = "ten-second-game-best";
 
 // 保存済みの値を number型 として安全に取得する
@@ -16,21 +19,6 @@ function getSavedBestRecord(): number | null {
 
     const parsedBest = Number(savedBest);
     return Number.isFinite(parsedBest) ? parsedBest : null;
-}
-
-// 記録に応じたメッセージを作る
-function createResultMessage(
-    elapsedSeconds: number,
-    difference: number,
-): string {
-    let rank: string;
-
-    if (difference <= 0.05) rank = "神業！";
-    else if (difference <= 0.2) rank = "すごい！";
-    else if (difference <= 0.5) rank = "惜しい！";
-    else rank = "もう1度挑戦！";
-
-    return `${elapsedSeconds.toFixed(2)}秒（誤差${difference.toFixed(2)}秒） ${rank}`;
 }
 
 function App() {
@@ -88,7 +76,7 @@ function App() {
         }
 
         const elapsedSeconds = (performance.now() - startTimeRef.current) / 1000;
-        const difference = Math.abs(TARGET_TIME - elapsedSeconds);
+        const difference = calculateDifference(elapsedSeconds);
 
         clearTimer();
         setElapsedSeconds(elapsedSeconds);
