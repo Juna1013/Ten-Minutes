@@ -1,23 +1,21 @@
 {
-    "name": "ten-second-game",
-    "version": "1.0.0",
+    "name": "ten-minutes",
     "private": true,
+    "workspaces": [
+        "apps/*"
+    ],
     "scripts": {
-        "build": "tsc --noEmit && vite build",
-        "watch": "tsc --watch",
-        "dev": "vite",
-        "preview": "vite preview"
+        "dev": "turbo run dev",
+        "build": "turbo run build",
+        "check": "turbo run check",
+        "dev:web": "turbo run dev --filter=@ten-minutes/web",
+        "dev:api": "turbo run dev --filter=@ten-minutes/api",
+        "db:up": "docker compose up -d db",
+        "db:down": "docker compose down",
+        "db:logs": "docker compose logs -f db"
     },
+    "packageManager": "npm@11.5.1",
     "devDependencies": {
-        "@types/react": "^19.2.18",
-        "@types/react-dom": "^19.2.4",
-        "@vitejs/plugin-react": "^6.0.5",
-        "typescript": "^7.0.2",
-        "vite": "^8.2.1"
-    },
-    "dependencies": {
-        "react": "^19.2.8",
-        "react-dom": "^19.2.8"
-    },
-    "type": "module"
+        "turbo": "^2.10.10"
+    }
 }
