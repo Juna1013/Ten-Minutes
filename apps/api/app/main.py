@@ -6,6 +6,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from pydantic import field_serializer
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 TARGET_TIME = 10.0
@@ -26,6 +27,14 @@ class RecordPublic(SQLModel):
     elapsed_time: float
     difference: float
     created_at: datetime
+
+    # DBから読むとタイムゾーン情報が落ちるため、常にUTCとして明示する
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> str:
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+
+        return value.isoformat()
 
 class Settings(BaseSettings):
     database_url: str
