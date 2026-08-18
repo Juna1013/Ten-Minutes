@@ -6,14 +6,9 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 TARGET_TIME = 10.0
-DATABASE_URL = "sqlite:///records.db"
-
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False},
-)
 
 class RecordCreate(SQLModel):
     elapsed_time: float = Field(gt=0, le=60)
@@ -31,6 +26,22 @@ class RecordPublic(SQLModel):
     elapsed_time: float
     difference: float
     created_at: datetime
+
+class Settings(BaseSettings):
+    database_url: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+settings = Settings()
+
+engine = create_engine(
+    settings.database_url,
+    pool_pre_ping=True,
+)
 
 def get_session() -> Generator[Session, None, None]:
     with Session(engine) as session:
